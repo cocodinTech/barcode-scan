@@ -1,0 +1,11 @@
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:18.0.0'
+    compile files('libs/DeviceAPIver20160627.jar')
+    compile files('libs/DataCollection.jar')
+}

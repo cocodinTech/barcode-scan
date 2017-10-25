@@ -1,0 +1,10 @@
+{
+  "name": "barcode-scan",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+http://labs.cocodin.com:8888/cocodin-development-team/barcode-scan.git"
+  },
+  "author": "",
+  "license": "MIT"
+}
