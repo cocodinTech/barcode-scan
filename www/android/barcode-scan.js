@@ -6,6 +6,9 @@
     scan: function (device, cb, error) {
       exec(cb, error, PLUGIN_NAME, 'scan', [device]);
     },
+    enable: function (device, cb, error) {
+      exec(cb, error, PLUGIN_NAME, 'enable', [device]);
+    },
     getDevices: function (cb, error) {
       exec(cb, error, PLUGIN_NAME, 'getDevices', []);
     }

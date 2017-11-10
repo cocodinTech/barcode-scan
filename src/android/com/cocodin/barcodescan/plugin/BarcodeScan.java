@@ -88,6 +88,24 @@ public class BarcodeScan extends CordovaPlugin {
         }
       });
     }
+    else if (action.equalsIgnoreCase("enable")) {
+      cordova.getThreadPool().execute(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            String deviceName = args.get(0).toString();
+            //ensure device is created and is the correct device (user could change the device in mobile UI)
+            if (mDevice == null || !mDevice.getDeviceName().equalsIgnoreCase(deviceName)) {
+              mDevice = selectDevice(deviceName);
+            }
+            mDevice.enable(cordova, webView, args, callbackContext);
+          } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
+          }
+        }
+      });
+    }
     else if (action.equalsIgnoreCase("getDevices")) {
       callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, jaDevices));
     }

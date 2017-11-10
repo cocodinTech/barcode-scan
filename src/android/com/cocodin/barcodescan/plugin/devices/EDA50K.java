@@ -34,7 +34,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
     private BarcodeReader barcodeReader;
     private AidcManager manager;
 
-    private CallbackContext currentCallbackContext = null;
+    //private CallbackContext currentCallbackContext = null;
 
     public EDA50K(CordovaInterface cordova, CordovaWebView webView) {
         super(cordova, webView);
@@ -129,7 +129,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
             try {
                 barcodeReader.claim();
             } catch (ScannerUnavailableException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
         }
     }
@@ -173,7 +173,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
 
     @Override
     public void onBarcodeEvent(BarcodeReadEvent barcodeReadEvent) {
-        Log.d(TAG, barcodeReadEvent.getBarcodeData());
+        Log.d(TAG + " - Barcode: ", barcodeReadEvent.getBarcodeData());
 
         if (currentCallbackContext != null) {
             try {
@@ -183,7 +183,9 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                 result.setKeepCallback(true);
                 currentCallbackContext.sendPluginResult(result);
             } catch (Exception x) {
-                Log.e(TAG, x.getMessage());
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, x.getMessage());
+                result.setKeepCallback(true);
+                currentCallbackContext.sendPluginResult(result);
             }
         }
     }

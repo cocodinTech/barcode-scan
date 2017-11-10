@@ -10,7 +10,10 @@ import com.cocodin.barcodescan.plugin.BaseScan;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
  * Created by alberto.doval on 22/10/17.
  */
