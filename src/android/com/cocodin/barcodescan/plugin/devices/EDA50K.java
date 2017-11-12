@@ -111,6 +111,19 @@ public class EDA50K extends BaseScan implements BarcodeListener {
     @Override
     public void scan(final CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
         this.currentCallbackContext = callbackContext;
+        try {
+            //force trigger
+            barcodeReader.softwareTrigger(true);
+            JSONObject obj = new JSONObject();
+            PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+            result.setKeepCallback(true);
+            currentCallbackContext.sendPluginResult(result);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getMessage());
+            result.setKeepCallback(true);
+            currentCallbackContext.sendPluginResult(result);
+        }
     }
 
     @Override
