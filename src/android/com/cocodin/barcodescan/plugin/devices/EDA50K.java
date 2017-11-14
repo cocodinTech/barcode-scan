@@ -46,6 +46,15 @@ public class EDA50K extends BaseScan implements BarcodeListener {
         return TAG;
     }
 
+    public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
+            final CallbackContext callbackContext) {
+        this.currentCallbackContext = callbackContext;
+        JSONObject obj = new JSONObject();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    };
+
     public void initialize(final CordovaInterface cordova, CordovaWebView webView) {
         if (manager == null) {
             AidcManager.create(cordova.getActivity(), new CreatedCallback() {
@@ -102,14 +111,16 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                         //Perform first read after initialization
                         claim();
 
-                    };
+                    }
+                    ;
                 }
             });
         }
     }
 
     @Override
-    public void scan(final CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
+    public void scan(final CordovaInterface cordova, CordovaWebView webView, JSONArray args,
+            final CallbackContext callbackContext) {
         this.currentCallbackContext = callbackContext;
         try {
             //force trigger
@@ -193,6 +204,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                 JSONObject obj = new JSONObject();
                 obj.put("text", barcodeReadEvent.getBarcodeData());
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                barcodeReader.softwareTrigger(false);
                 result.setKeepCallback(true);
                 currentCallbackContext.sendPluginResult(result);
             } catch (Exception x) {
