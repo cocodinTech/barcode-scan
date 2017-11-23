@@ -96,6 +96,8 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                         properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
                         properties.put(BarcodeReader.PROPERTY_INTERLEAVED_25_ENABLED, false);
                         properties.put(BarcodeReader.PROPERTY_PDF_417_ENABLED, false);
+                        // Enable trasmission to EAN 13 control digit
+                        properties.put(BarcodeReader.PROPERTY_EAN_13_CHECK_DIGIT_TRANSMIT_ENABLED, true);
                         // Set Max Code 39 barcode length
                         properties.put(BarcodeReader.PROPERTY_CODE_39_MAXIMUM_LENGTH, 48);
                         // Turn on center decoding
