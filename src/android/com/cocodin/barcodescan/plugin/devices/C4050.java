@@ -102,4 +102,3 @@ public class C4050 extends BaseScan {
 
     }
 }
-

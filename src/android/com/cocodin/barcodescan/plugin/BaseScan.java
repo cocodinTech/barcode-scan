@@ -40,4 +40,16 @@ public abstract class BaseScan {
 
     public abstract void onPause(boolean multitasking);
 
+    public static void sendPluginResultError(CallbackContext currentCallbackContext, String message) {
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, message);
+        result.setKeepCallback(true);
+        currentCallbackContext.sendPluginResult(result);
+    }
+
+    public static void sendPluginResultOK(CallbackContext currentCallbackContext, JSONObject obj) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+        result.setKeepCallback(true);
+        currentCallbackContext.sendPluginResult(result);
+    }
+
 }

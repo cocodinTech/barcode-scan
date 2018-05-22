@@ -58,10 +58,10 @@ public class BarcodeScan extends CordovaPlugin {
           mDevices.put(EDA50K, new com.cocodin.barcodescan.plugin.devices.EDA50K(cordova, webView));
         } else if (C4050.equalsIgnoreCase(deviceName)) {
           mDevices.put(C4050, new com.cocodin.barcodescan.plugin.devices.C4050(cordova, webView));
-        } else if (ZEBRAMC33.equalsIgnoreCase(deviceName)) {
-          mDevices.put(ZEBRAMC33, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView));
         } else if (NQUIRE300.equalsIgnoreCase(deviceName)) {
           mDevices.put(NQUIRE300, new com.cocodin.barcodescan.plugin.devices.NQuire300(cordova, webView));
+        } else if (ZEBRAMC33.equalsIgnoreCase(deviceName)) {
+          mDevices.put(ZEBRAMC33, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView));
         } else {
           mDevices.put(CAMERA, new com.cocodin.barcodescan.plugin.devices.Camera(cordova, webView));
         }
@@ -85,6 +85,24 @@ public class BarcodeScan extends CordovaPlugin {
               mDevice = selectDevice(deviceName);
             }
             mDevice.scan(cordova, webView, args, callbackContext);
+          } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
+          }
+        }
+      });
+    }
+    else if (action.equalsIgnoreCase("enable")) {
+      cordova.getThreadPool().execute(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            String deviceName = args.get(0).toString();
+            //ensure device is created and is the correct device (user could change the device in mobile UI)
+            if (mDevice == null || !mDevice.getDeviceName().equalsIgnoreCase(deviceName)) {
+              mDevice = selectDevice(deviceName);
+            }
+            mDevice.enable(cordova, webView, args, callbackContext);
           } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
@@ -144,3 +162,4 @@ public class BarcodeScan extends CordovaPlugin {
   }
 
 }
+

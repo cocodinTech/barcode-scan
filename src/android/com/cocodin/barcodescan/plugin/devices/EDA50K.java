@@ -47,7 +47,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
     }
 
     public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
-            final CallbackContext callbackContext) {
+                       final CallbackContext callbackContext) {
         this.currentCallbackContext = callbackContext;
         JSONObject obj = new JSONObject();
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
@@ -122,7 +122,7 @@ public class EDA50K extends BaseScan implements BarcodeListener {
 
     @Override
     public void scan(final CordovaInterface cordova, CordovaWebView webView, JSONArray args,
-            final CallbackContext callbackContext) {
+                     final CallbackContext callbackContext) {
         this.currentCallbackContext = callbackContext;
         try {
             //force trigger
