@@ -5,7 +5,8 @@ allprojects {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
-    compile files('libs/DeviceAPIver20160627.jar')
-    compile files('libs/DataCollection.jar')
+    implementation 'com.android.support:support-v4:27.0.1'
+    implementation files('libs/DeviceAPIver20160627.jar')
+    implementation files('libs/DataCollection.jar')
+    implementation files('libs/com.symbol.emdk.jar')
 }
