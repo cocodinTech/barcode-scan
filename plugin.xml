@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="barcode-scan"
-    version="1.1.0">
+    version="1.1.1">
     <name>Cordova Barcode Scan plugin for hybrid apps. Some devices supported: honeywell, chainway, nquire...</name>
     <description></description>
     <license>MIT</license>
@@ -34,7 +34,7 @@
             <uses-permission android:name="com.symbol.emdk.permission.EMDK"/>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <uses-library android:name="com.symbol.emdk"/>
+            <uses-library android:name="com.symbol.emdk" android:required="false"/>
         </config-file>
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BarcodeScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BaseScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
