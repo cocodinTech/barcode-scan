@@ -32,6 +32,7 @@
             <uses-permission android:name="android.permission.CAMERA" />
             <uses-permission android:name="com.honeywell.decode.permission.DECODE" />
             <uses-permission android:name="com.symbol.emdk.permission.EMDK"/>
+            <uses-permission android:name="android.permission.VIBRATE" />
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <uses-library android:name="com.symbol.emdk" android:required="false"/>
