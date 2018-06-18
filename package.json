@@ -1,10 +1,10 @@
 {
   "name": "barcode-scan",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/cocodinTech/barcode-scan.git"
   },
-  "author": "",
+  "author": "Alberto Doval - Cocodin Technology SL",
   "license": "MIT"
 }

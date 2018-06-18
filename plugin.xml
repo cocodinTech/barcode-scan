@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="barcode-scan"
-    version="1.1.1">
+    version="1.1.2">
     <name>Cordova Barcode Scan plugin for hybrid apps. Some devices supported: honeywell, chainway, nquire...</name>
     <description></description>
     <license>MIT</license>
@@ -43,6 +43,7 @@
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/EDA50K.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/NQuire300.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/ZebraMC33.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
+      <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/UnitechEA300.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
 
 
       <source-file src="src/libs/DeviceAPIver20160627.jar" target-dir="app/libs" />
@@ -73,5 +74,6 @@
       <source-file src="src/libs/armeabi-v7a/libSDL.so" target-dir="app/libs/armeabi-v7a" />
       <source-file src="src/libs/DataCollection.jar" target-dir="app/libs" />
       <source-file src="src/libs/com.symbol.emdk.jar" target-dir="app/libs" />
+      <source-file src="src/libs/unitech_sdk_v2.3.602.jar" target-dir="app/libs" />
     </platform>
 </plugin>

@@ -9,4 +9,5 @@ dependencies {
     implementation files('libs/DeviceAPIver20160627.jar')
     implementation files('libs/DataCollection.jar')
     implementation files('libs/com.symbol.emdk.jar')
+    implementation files('libs/unitech_sdk_v2.3.602.jar')
 }

@@ -4,7 +4,6 @@ package com.cocodin.barcodescan.plugin;
 
 import android.util.Log;
 
-import com.cocodin.barcodescan.plugin.devices.*;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -15,8 +14,6 @@ import org.json.JSONArray;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.R.attr.action;
 
 public class BarcodeScan extends CordovaPlugin {
 
@@ -32,7 +29,9 @@ public class BarcodeScan extends CordovaPlugin {
 
   public static final String ZEBRAMC33 = "ZebraMC33";
 
-  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33));
+  public static final String UNITECHEA300 = "UnitechEA300";
+
+  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33, UNITECHEA300));
 
   private BaseScan mDevice;
 
@@ -62,6 +61,9 @@ public class BarcodeScan extends CordovaPlugin {
           mDevices.put(NQUIRE300, new com.cocodin.barcodescan.plugin.devices.NQuire300(cordova, webView));
         } else if (ZEBRAMC33.equalsIgnoreCase(deviceName)) {
           mDevices.put(ZEBRAMC33, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView));
+        }
+        else if (UNITECHEA300.equalsIgnoreCase(deviceName)) {
+          mDevices.put(UNITECHEA300, new com.cocodin.barcodescan.plugin.devices.UnitechEA300(cordova, webView));
         } else {
           mDevices.put(CAMERA, new com.cocodin.barcodescan.plugin.devices.Camera(cordova, webView));
         }
@@ -162,4 +164,3 @@ public class BarcodeScan extends CordovaPlugin {
   }
 
 }
-
