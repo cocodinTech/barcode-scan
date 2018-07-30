@@ -21,8 +21,13 @@ public abstract class BaseScan {
 
     public abstract void initialize(CordovaInterface cordova, CordovaWebView webView);
 
-    public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
-            final CallbackContext callbackContext) {
+    public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
+        this.currentCallbackContext = callbackContext;
+        //this.prepareForScan();
+        JSONObject obj = new JSONObject();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
     };
 
     public abstract String getDeviceName();

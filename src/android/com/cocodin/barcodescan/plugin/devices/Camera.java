@@ -28,6 +28,10 @@ public class Camera extends BaseScan {
         initialize(cordova, webView);
     }
 
+    public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
+        super.enable(cordova, webView, args, callbackContext);
+    };
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 
