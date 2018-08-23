@@ -90,7 +90,8 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                         properties.put(BarcodeReader.PROPERTY_QR_CODE_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_CODE_39_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_DATAMATRIX_ENABLED, true);
-                        properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, true);
+                        // disabling upc-a it is forced that upc-a codes will be read as ean13 with left zeros
+                        properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, false);
                         properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_AZTEC_ENABLED, false);
                         properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
