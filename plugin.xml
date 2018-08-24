@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="barcode-scan"
-    version="1.1.6">
+    version="1.1.7">
     <name>Cordova Barcode Scan plugin for hybrid apps. Some devices supported: honeywell, chainway, nquire...</name>
     <description></description>
     <license>MIT</license>
