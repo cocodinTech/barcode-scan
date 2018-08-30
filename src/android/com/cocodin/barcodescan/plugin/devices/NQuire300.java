@@ -35,12 +35,12 @@ public class NQuire300 extends BaseScan {
 
     public NQuire300(CordovaInterface cordova, CordovaWebView webView) {
         super(cordova, webView);
-        initMquire(cordova, webView);
+        initialize(cordova, webView);
     }
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-
+        initMquire(cordova.getContext(), currentCallbackContext);
     }
 
     @Override
