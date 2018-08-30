@@ -35,11 +35,50 @@ public class NQuire300 extends BaseScan {
 
     public NQuire300(CordovaInterface cordova, CordovaWebView webView) {
         super(cordova, webView);
-        initialize(cordova, webView);
+        initMquire(cordova, webView);
     }
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+
+    }
+
+    @Override
+    public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
+            CallbackContext callbackContext) {
+        Context context = cordova.getActivity();
+        // cbContext = callbackContext;
+        if (!MQuireOn) {
+            initMquire(context, callbackContext);
+        }
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+
+    }
+
+    private void initMquire(Context context, final CallbackContext callbackContext) {
         Intent intent = new Intent("ACTION_BAR_SCANCFG");
         intent.putExtra("EXTRA_SCAN_MODE", 3);
         intent.putExtra("EXTRA_SCAN_AUTOENT", 0);
@@ -71,40 +110,5 @@ public class NQuire300 extends BaseScan {
             }
         };
         context.registerReceiver(barcodeScannerBroadcastReceiver, new IntentFilter("nlscan.action.SCANNER_RESULT"));
-    }
-
-    @Override
-    public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
-            CallbackContext callbackContext) {
-        Context context = cordova.getActivity();
-        // cbContext = callbackContext;
-        if (!MQuireOn) {
-            initialize(context, callbackContext);
-        }
-    }
-
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onStop() {
-
-    }
-
-    @Override
-    public void onDestroy() {
-
-    }
-
-    @Override
-    public void onResume(boolean multitasking) {
-
-    }
-
-    @Override
-    public void onPause(boolean multitasking) {
-
     }
 }
