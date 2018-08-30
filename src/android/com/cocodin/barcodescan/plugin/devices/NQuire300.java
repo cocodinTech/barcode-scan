@@ -40,15 +40,46 @@ public class NQuire300 extends BaseScan {
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        initMquire(cordova.getContext(), currentCallbackContext);
+        Intent intent = new Intent("ACTION_BAR_SCANCFG");
+        intent.putExtra("EXTRA_SCAN_MODE", 3);
+        intent.putExtra("EXTRA_SCAN_AUTOENT", 0);
+        intent.putExtra("EXTRA_SCAN_NOTY_LED", 1);
+        intent.putExtra("EXTRA_SCAN_NOTY_SND", 1);
+        context.sendBroadcast(intent);
+        MQuireOn = true;
+        barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String scanResult_1 = intent.getStringExtra("SCAN_BARCODE1");
+                final String scanStatus = intent.getStringExtra("SCAN_STATE");
+                if (null == scanResult_1 || null == scanStatus || scanResult_1.isEmpty() || scanStatus.isEmpty()) {
+                    return;
+                }
+
+                if ("ok".equals(scanStatus)) {
+                    try {
+                        JSONObject obj = new JSONObject();
+                        obj.put("text", scanResult_1);
+                        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                        result.setKeepCallback(true);
+                        currentCallbackContext.sendPluginResult(result);
+                    } catch (JSONException e) {
+                        Log.e("Error: ", e.getMessage());
+                        currentCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR));
+                    }
+                }
+            }
+        };
+        context.registerReceiver(barcodeScannerBroadcastReceiver, new IntentFilter("nlscan.action.SCANNER_RESULT"));
     }
 
     @Override
-    public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args, CallbackContext callbackContext) {
+    public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args,
+            CallbackContext callbackContext) {
         Context context = cordova.getActivity();
-        //cbContext = callbackContext;
+        // cbContext = callbackContext;
         if (!MQuireOn) {
-            initMquire(context, callbackContext);
+            initialize(context, callbackContext);
         }
     }
 
@@ -75,39 +106,5 @@ public class NQuire300 extends BaseScan {
     @Override
     public void onPause(boolean multitasking) {
 
-    }
-
-    private void initMquire(Context context, final CallbackContext callbackContext) {
-        Intent intent = new Intent("ACTION_BAR_SCANCFG");
-        intent.putExtra("EXTRA_SCAN_MODE", 3);
-        intent.putExtra("EXTRA_SCAN_AUTOENT", 0);
-        intent.putExtra("EXTRA_SCAN_NOTY_LED", 1);
-        intent.putExtra("EXTRA_SCAN_NOTY_SND", 1);
-        context.sendBroadcast(intent);
-        MQuireOn = true;
-        barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final String scanResult_1 = intent.getStringExtra("SCAN_BARCODE1");
-                final String scanStatus = intent.getStringExtra("SCAN_STATE");
-                if (null == scanResult_1 || null == scanStatus || scanResult_1.isEmpty() || scanStatus.isEmpty()) {
-                    return;
-                }
-
-                if ("ok".equals(scanStatus)) {
-                    try {
-                        JSONObject obj = new JSONObject();
-                        obj.put("text", scanResult_1);
-                        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
-                        result.setKeepCallback(true);
-                        currentCallbackContext.sendPluginResult(result);
-                    }catch(JSONException e) {
-                        Log.e("Error: ", e.getMessage());
-                        currentCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR));
-                    }
-                }
-            }
-        };
-        context.registerReceiver(barcodeScannerBroadcastReceiver, new IntentFilter("nlscan.action.SCANNER_RESULT"));
     }
 }
