@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import com.cocodin.barcodescan.plugin.BaseScan;
 
@@ -12,6 +13,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -38,7 +40,7 @@ public class NQuire300 extends BaseScan {
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-
+        initMquire(cordova.getContext(), currentCallbackContext);
     }
 
     @Override
@@ -93,7 +95,16 @@ public class NQuire300 extends BaseScan {
                 }
 
                 if ("ok".equals(scanStatus)) {
-                    callbackContext.success(scanResult_1);
+                    try {
+                        JSONObject obj = new JSONObject();
+                        obj.put("text", scanResult_1);
+                        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                        result.setKeepCallback(true);
+                        currentCallbackContext.sendPluginResult(result);
+                    }catch(JSONException e) {
+                        Log.e("Error: ", e.getMessage());
+                        currentCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR));
+                    }
                 }
             }
         };
