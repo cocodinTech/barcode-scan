@@ -90,7 +90,10 @@ public class EDA50K extends BaseScan implements BarcodeListener {
                         properties.put(BarcodeReader.PROPERTY_QR_CODE_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_CODE_39_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_DATAMATRIX_ENABLED, true);
+                        // enable read UPC with Number System and Check Digit
                         properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, true);
+                        properties.put(BarcodeReader.PROPERTY_UPC_A_CHECK_DIGIT_TRANSMIT_ENABLED, true);
+                        properties.put(BarcodeReader.PROPERTY_UPC_A_NUMBER_SYSTEM_TRANSMIT_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, true);
                         properties.put(BarcodeReader.PROPERTY_AZTEC_ENABLED, false);
                         properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
