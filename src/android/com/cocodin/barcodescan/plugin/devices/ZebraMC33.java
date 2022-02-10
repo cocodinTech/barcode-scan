@@ -132,36 +132,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         }
     }
 
-    /*private class ProcessProfileAsyncTask extends AsyncTask<String, Void, EMDKResults> {
 
-        @Override
-        protected EMDKResults doInBackground(String... params) {
-
-            // Call processPrfoile with profile name, SET flag and config data to update the profile
-            EMDKResults results = profileManager.processProfile(profileName, ProfileManager.PROFILE_FLAG.SET, params);
-
-            return results;
-        }
-
-        @Override
-        protected void onPostExecute(EMDKResults results) {
-
-            super.onPostExecute(results);
-
-            String resultString;
-
-            //Check the return status of processProfile
-            if(results.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
-
-                resultString = "Profile update success.";
-
-            }else {
-
-                resultString = "Profile update failed.";
-            }
-
-        }
-    } */
 
     private void deInitScanner() {
         if (scanner != null) {
@@ -209,7 +180,11 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         if (scanner != null) {
             try {
                 if(scanner.isEnabled()) {
+                    if (scanner.isReadPending()) {
+                        scanner.cancelRead();
+                    }
                     // Submit a new read.
+                    setSoftTrigger();
                     scanner.read();
                 }
                 else {
@@ -295,6 +270,17 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             }*/
         }
     }
+
+    private void setSoftTrigger() {
+        if (scanner == null) {
+            initScanner();
+        }
+        if (scanner != null) {
+            //force to trigger SOFT_ONCE scanner
+            scanner.triggerType = TriggerType.SOFT_ONCE;
+        }
+    }
+
 
     //config barcode types allowed
     private void setDecoders() {
@@ -510,6 +496,37 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             }
         }
     }
+
+    /*private class ProcessProfileAsyncTask extends AsyncTask<String, Void, EMDKResults> {
+
+        @Override
+        protected EMDKResults doInBackground(String... params) {
+
+            // Call processPrfoile with profile name, SET flag and config data to update the profile
+            EMDKResults results = profileManager.processProfile(profileName, ProfileManager.PROFILE_FLAG.SET, params);
+
+            return results;
+        }
+
+        @Override
+        protected void onPostExecute(EMDKResults results) {
+
+            super.onPostExecute(results);
+
+            String resultString;
+
+            //Check the return status of processProfile
+            if(results.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
+
+                resultString = "Profile update success.";
+
+            }else {
+
+                resultString = "Profile update failed.";
+            }
+
+        }
+    } */
 
 }
 
