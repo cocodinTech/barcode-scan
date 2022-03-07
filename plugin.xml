@@ -2,11 +2,11 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="barcode-scan"
-    version="1.1.12">
+    version="1.1.13">
     <name>Cordova Barcode Scan plugin for hybrid apps. Some devices supported: honeywell, chainway, nquire...</name>
     <description></description>
     <license>MIT</license>
-    <keywords>barcode, barcode scan, zebra, honeywell, eda50k, mc3300, nquire, chainway</keywords>
+    <keywords>barcode, barcode scan, zebra, honeywell, eda50k, mc3300, nquire, chainway, unitech</keywords>
     <repo>https://github.com/cocodinTech/barcode-scan.git</repo>
 
     <engines>
@@ -45,6 +45,7 @@
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/NQuire300.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/ZebraMC33.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/UnitechEA300.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
+      <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/EA630.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
 
 
       <source-file src="src/libs/DeviceAPIver20160627.jar" target-dir="app/libs" />
