@@ -33,7 +33,10 @@ public class BarcodeScan extends CordovaPlugin {
 
   public static final String EA630 = "EA630";
 
-  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33, UNITECHEA300, EA630));
+  public static final String IT51 = "IT_51";
+
+
+  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33, UNITECHEA300, EA630, IT51));
 
   private BaseScan mDevice;
 
@@ -67,7 +70,9 @@ public class BarcodeScan extends CordovaPlugin {
           mDevices.put(UNITECHEA300, new com.cocodin.barcodescan.plugin.devices.UnitechEA300(cordova, webView));
         } else if (EA630.equalsIgnoreCase(deviceName)) {
           mDevices.put(EA630, new com.cocodin.barcodescan.plugin.devices.EA630(cordova, webView));
-        } else {
+        } else if (IT51.equalsIgnoreCase(deviceName)) {
+          mDevices.put(IT51, new com.cocodin.barcodescan.plugin.devices.IT51(cordova, webView));
+        }else {
           mDevices.put(CAMERA, new com.cocodin.barcodescan.plugin.devices.Camera(cordova, webView));
         }
       }
