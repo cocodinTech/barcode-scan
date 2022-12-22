@@ -1,3 +1,6 @@
+## [1.1.15] 2022-12-22
+### Changed
+- Recoger json con las opciones pasadas al metodo scan(). Solo si el dispositivo es 'camera'
 ## [1.1.14] 2022-03-7
 ### Added
 - Nueva clase devices.IT51 para controlar el dispositivo ITOS IT_51
