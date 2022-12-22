@@ -42,7 +42,7 @@ public class Camera extends BaseScan {
         BarcodeScanner barcodeScanner = new BarcodeScanner();
         barcodeScanner.cordova = cordova;
         barcodeScanner.webView = webView;
-        barcodeScanner.execute("scan", new JSONArray(), callbackContext);
+        barcodeScanner.execute("scan", args, callbackContext);
     }
 
     @Override

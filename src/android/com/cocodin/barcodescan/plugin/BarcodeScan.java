@@ -11,6 +11,7 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +90,13 @@ public class BarcodeScan extends CordovaPlugin {
         @Override
         public void run() {
           try {
-            String deviceName = args.get(0).toString();
+            Object obj = args.get(0);
+            String deviceName = "";
+            if (obj instanceof String) {
+              deviceName = ((String) obj);
+            } else if (obj instanceof JSONObject) {
+              deviceName = ((JSONObject) obj).get("device").toString();
+            }
             //ensure device is created and is the correct device (user could change the device in mobile UI)
             if (mDevice == null || !mDevice.getDeviceName().equalsIgnoreCase(deviceName)) {
               mDevice = selectDevice(deviceName);
