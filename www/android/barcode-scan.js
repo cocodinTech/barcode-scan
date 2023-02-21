@@ -11,6 +11,9 @@
     },
     getDevices: function (cb, error) {
       exec(cb, error, PLUGIN_NAME, 'getDevices', []);
+    },
+    launchAndroidSettings: function (pkg, cb, error) {
+      exec(cb, error, PLUGIN_NAME, 'launchAndroidSettings', [pkg]);
     }
   };
   module.exports = BarcodeScan;
