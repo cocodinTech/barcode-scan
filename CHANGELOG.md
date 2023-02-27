@@ -1,3 +1,7 @@
+## [1.1.18] 2023-02-23
+### Added
+- Nuevo metodo para abrir los ajustes de notificaciones de Android
+
 ## [1.1.16] 2023-02-21
 ### Added
 - Nuevo metodo para abrir la página de ajustes de Android para app

@@ -129,20 +129,23 @@ public class BarcodeScan extends CordovaPlugin {
         } else if (action.equalsIgnoreCase("getDevices")) {
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, jaDevices));
         } else if (action.equalsIgnoreCase("launchAndroidSettings")) {
-            BarcodeScan com = this;
+            BarcodeScan plugin = this;
             cordova.getThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        if (Build.VERSION.SDK_INT >= 9) {
-                            Intent intent = new Intent();
+                        String key = args.get(0).toString();
+                        Intent intent = new Intent();
+                        String pckg = cordova.getContext().getPackageName();
+                        if (key.equalsIgnoreCase("notifications") && Build.VERSION.SDK_INT >= 26) {
+                            intent.setAction(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                            intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, pckg);
+                        } else {
                             intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            intent.setData(Uri.parse("package:" + cordova.getContext().getPackageName()));
-                            cordova.startActivityForResult(com, intent, 0);
-                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Launch OK"));
-                        } else { // todo
-
+                            intent.setData(Uri.parse("package:" + pckg));
                         }
+                        cordova.startActivityForResult(plugin, intent, 0);
+                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Launch OK"));
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
                         callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
