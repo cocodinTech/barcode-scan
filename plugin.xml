@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="barcode-scan"
-    version="1.1.18">
+    version="1.0.0">
     <name>barcode-scan</name>
     <description>Cordova plugin for hybrid apps. Some devices supported: honeywell, chainway, nquire...</description>
     <license>MIT</license>
@@ -39,6 +39,7 @@
         </config-file>
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BarcodeScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BaseScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
+      <source-file src="src/android/com/cocodin/barcodescan/plugin/AudioPlayer.java" target-dir="src/com/cocodin/barcodescan/plugin" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/C4050.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/Camera.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/EDA50K.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
@@ -46,7 +47,8 @@
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/ZebraMC33.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/UnitechEA300.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/EA630.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
-     <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/IT51.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
+      <source-file src="src/android/com/cocodin/barcodescan/plugin/devices/IT51.java" target-dir="src/com/cocodin/barcodescan/plugin/devices" />
+
 
       <source-file src="src/libs/DeviceAPIver20160627.jar" target-dir="app/libs" />
       <source-file src="src/libs/arm64-v8a/libbarcodereader44.so" target-dir="app/libs/arm64-v8a" />

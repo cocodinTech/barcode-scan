@@ -14,6 +14,9 @@
     },
     launchAndroidSettings: function (pkg, cb, error) {
       exec(cb, error, PLUGIN_NAME, 'launchAndroidSettings', [pkg]);
+    },
+    play: function (filename, cb, error) {
+      exec(cb, error, PLUGIN_NAME, 'play', [filename]);
     }
   };
   module.exports = BarcodeScan;
