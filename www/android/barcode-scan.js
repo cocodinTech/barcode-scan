@@ -12,11 +12,11 @@
     getDevices: function (cb, error) {
       exec(cb, error, PLUGIN_NAME, 'getDevices', []);
     },
-    launchAndroidSettings: function (pkg, cb, error) {
-      exec(cb, error, PLUGIN_NAME, 'launchAndroidSettings', [pkg]);
+    launchAndroidSettings: function (param, cb, error) {
+      exec(cb, error, PLUGIN_NAME, 'launchAndroidSettings', [param]);
     },
-    play: function (filename, cb, error) {
-      exec(cb, error, PLUGIN_NAME, 'play', [filename]);
+    play: function (filename, vol, cb, error) {
+      exec(cb, error, PLUGIN_NAME, 'play', [filename, vol]);
     }
   };
   module.exports = BarcodeScan;

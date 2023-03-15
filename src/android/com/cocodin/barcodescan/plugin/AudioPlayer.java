@@ -15,7 +15,7 @@ public class AudioPlayer {
         this.context = context;
     }
 
-    public void play(String fileName) {
+    public void play(String fileName, float vol) {
         try {
             if (m != null && m.isPlaying()) {
                 m.stop();
@@ -28,7 +28,7 @@ public class AudioPlayer {
             descriptor.close();
 
             m.prepare();
-            m.setVolume(1f, 1f);
+            m.setVolume(vol, vol);
             m.start();
 //            m.stop();
 //            m.release();

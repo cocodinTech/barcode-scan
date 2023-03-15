@@ -153,13 +153,13 @@ public class BarcodeScan extends CordovaPlugin {
                 }
             });
         } else if (action.equalsIgnoreCase("play")) {
-            BarcodeScan plugin = this;
-            cordova.getThreadPool().execute(new Runnable() {
+               cordova.getThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         String fileName = args.get(0).toString();
-                        new AudioPlayer(cordova.getContext()).play(fileName);
+                        float vol = Float.parseFloat(args.get(1).toString());
+                        new AudioPlayer(cordova.getContext()).play(fileName,vol);
                         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Launch OK"));
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
