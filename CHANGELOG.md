@@ -1,3 +1,7 @@
+
+### Fixed
+ - No retornar las lecturas del EA630 si currentCallbackContext == null
+ 
 ## [1.1.19] 2023-02-23
 
 ### Changed

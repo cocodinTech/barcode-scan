@@ -38,6 +38,8 @@ public class EA630 extends BaseScan {
   private final BroadcastReceiver barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
+      if(currentCallbackContext == null) return;
+      
       Bundle bundle = intent.getExtras();
       if (bundle == null) return;
       String barcodeStr = bundle.getString("text");
