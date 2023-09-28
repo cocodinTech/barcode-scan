@@ -1,4 +1,9 @@
+## [1.1.24] 2023-09-28
 
+### Added
+- Clave 'format' en las lecturas de EA630
+
+## [1.1.23] 2023-06-12
 ### Fixed
  - No retornar las lecturas del EA630 si currentCallbackContext == null
  

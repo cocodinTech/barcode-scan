@@ -18,11 +18,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * Created by Diego Santiago on 4/2/22
+ * <a href="https://www.ute.com/uploads/images/Downloads/Android_%20Programming_Manual%20V2_8_1.pdf">...</a>
  */
 
 public class EA630 extends BaseScan {
+
+  private Map<Integer, String> mapTypes = new HashMap<>();
 
   private static final String TAG = "UnitechEA630";
   private final static String ACTION_SCAN2KEY_SETTING = "unitech.scanservice.scan2key_setting";
@@ -32,33 +39,36 @@ public class EA630 extends BaseScan {
   private final static String ACTION_RECEIVE_DATABYTES = "unitech.scanservice.databyte";
   private final static String ACTION_RECEIVE_DATALENGTH = "unitech.scanservice.datalength";
   private final static String ACTION_RECEIVE_DATATYPE = "unitech.scanservice.datatype";
-
+  private final static String ACTION_RECEIVE_TERMINATOR = "unitech.scanservice.terminator";
   private boolean EA630On = false;
 
+
   private final BroadcastReceiver barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
+    private JSONObject obj;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-      if(currentCallbackContext == null) return;
-      
+      if (currentCallbackContext == null) return;
       Bundle bundle = intent.getExtras();
       if (bundle == null) return;
       String barcodeStr = bundle.getString("text");
-
-      if (barcodeStr.indexOf("\n") == barcodeStr.length() - 1) {
+      int type = bundle.getInt("text");
+      if (barcodeStr != null && barcodeStr.indexOf("\n") == barcodeStr.length() - 1) {
         barcodeStr = barcodeStr.replaceAll("[\n]", "");
       }
-
-      if (barcodeStr.isEmpty()) {
-        return;
-      }
       try {
-        JSONObject obj = new JSONObject();
-        obj.put("text", barcodeStr);
-        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
-        result.setKeepCallback(true);
-        currentCallbackContext.sendPluginResult(result);
+        if (null == obj && barcodeStr != null) {
+          obj = new JSONObject();
+          obj.put("text", barcodeStr);
+        } else if (type != 0 && obj != null) {
+          obj.put("format", mapTypes.get(type));
+          PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+          result.setKeepCallback(true);
+          currentCallbackContext.sendPluginResult(result);
+          obj = null;
+        }
       } catch (JSONException e) {
-        Log.e("Error: ", e.getMessage());
+        Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
         currentCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR));
       }
     }
@@ -120,14 +130,26 @@ public class EA630 extends BaseScan {
   }
 
   private void initEA630(Context context) {
+    this.mapTypes.put(100, "EAN_13");
+    this.mapTypes.put(68, "EAN_8");
+    this.mapTypes.put(98, "CODE_39");
+    this.mapTypes.put(106, "CODE_128");
+    //this.mapTypes.put(73, "EAN_14");
+    this.mapTypes.put(99, "UPC_A");
+    this.mapTypes.put(69, "UPC_E");
+    this.mapTypes.put(115, "QR_CODE");
+    this.mapTypes.put(119, "DATA_MATRIX");
+
     IntentFilter filter = new IntentFilter();
     filter.addAction(ACTION_RECEIVE_DATA);
+    filter.addAction(ACTION_RECEIVE_DATATYPE);
+
      /*
+     filter.addAction(ACTION_RECEIVE_TERMINATOR);
      filter.addAction(ACTION_RECEIVE_DATABYTES);
      filter.addAction(ACTION_RECEIVE_DATALENGTH);
-     filter.addAction(ACTION_RECEIVE_DATATYPE);
      */
-    context.registerReceiver(barcodeScannerBroadcastReceiver, filter);
+    context.registerReceiver(barcodeScannerBroadcastReceiver, filter); //todo Context.RECEIVER_NOT_EXPORTED
     // deshabilitar scan2key, para recibir datos en onReceive()
     Bundle bundle = new Bundle();
     bundle.putBoolean("scan2key", false);
