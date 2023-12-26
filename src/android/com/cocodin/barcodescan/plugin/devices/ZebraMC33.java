@@ -31,9 +31,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Map;
 
 /**
  * Created by alberto.doval on 21/05/18.
@@ -51,11 +52,12 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
 
     private List<ScannerInfo> deviceList = null;
 
-    private int scannerIndex = 0; // Keep the selected scanner
+    private int scannerIndex = 1; // Keep the selected scanner
     private int defaultIndex = 0; // Keep the default scanner
     private int triggerIndex = 0;
     private int dataLength = 0;
     private String statusString = "";
+    private Map<String, String> mapTypes = new HashMap<>();
 
     public ZebraMC33(CordovaInterface cordova, CordovaWebView webView) {
         super(cordova, webView);
@@ -103,16 +105,28 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
         callbackContext.sendPluginResult(result);
-    };
+    }
+
+    ;
 
     private void initScanner() {
+        this.mapTypes.put("EAN13", "EAN_13");
+        this.mapTypes.put("EAN8", "EAN_8");
+        this.mapTypes.put("CODE39", "CODE_39");
+        this.mapTypes.put("CODE128", "CODE_128");
+        this.mapTypes.put("EAN128", "CODE_128");
+        //this.mapTypes.put(73, "EAN_14");
+        this.mapTypes.put("UPCA", "UPC_A");
+        this.mapTypes.put("UPCE0", "UPC_E");
+        this.mapTypes.put("QRCODE", "QR_CODE");
+        this.mapTypes.put("DATAMATRIX", "DATA_MATRIX");
+        this.mapTypes.put("GS1_DATABAR", "RSS_14");
         if (scanner == null) {
             if ((deviceList != null) && (deviceList.size() != 0)) {
                 scanner = barcodeManager.getDevice(deviceList.get(scannerIndex));
-            }
-            else {
+            } else {
                 String errMsg = "Status: " + "Failed to get the specified scanner device! Please close and restart the application.";
-                Log.e(TAG,errMsg);
+                Log.e(TAG, errMsg);
                 BaseScan.sendPluginResultError(currentCallbackContext, errMsg);
             }
             if (scanner != null) {
@@ -121,7 +135,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
                 try {
                     scanner.enable();
                 } catch (ScannerException e) {
-                    Log.e(TAG,"Status: " + e.getMessage());
+                    Log.e(TAG, "Status: " + e.getMessage());
                     BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
                 }
             } else {
@@ -131,7 +145,6 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             }
         }
     }
-
 
 
     private void deInitScanner() {
@@ -146,12 +159,12 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
                 scanner.removeDataListener(this);
                 scanner.removeStatusListener(this);
             } catch (Exception e) {
-                Log.e(TAG,"Error removing listeners: Status: " + e.getMessage());
+                Log.e(TAG, "Error removing listeners: Status: " + e.getMessage());
             }
-            try{
+            try {
                 scanner.release();
             } catch (Exception e) {
-                Log.e(TAG,"Error releasing scanner: Status: " + e.getMessage());
+                Log.e(TAG, "Error releasing scanner: Status: " + e.getMessage());
             }
             scanner = null;
         }
@@ -174,26 +187,25 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
     public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
         this.currentCallbackContext = callbackContext;
 
-        if(scanner == null) {
+        if (scanner == null) {
             initScanner();
         }
         if (scanner != null) {
             try {
-                if(scanner.isEnabled()) {
+                if (scanner.isEnabled()) {
                     if (scanner.isReadPending()) {
                         scanner.cancelRead();
                     }
                     // Submit a new read.
                     setSoftTrigger();
                     scanner.read();
-                }
-                else {
+                } else {
                     String msg = "Status: Scanner is not enabled";
-                    Log.e(TAG,msg);
+                    Log.e(TAG, msg);
                     BaseScan.sendPluginResultError(currentCallbackContext, msg);
                 }
             } catch (ScannerException e) {
-                Log.e(TAG,"Status: " + e.getMessage());
+                Log.e(TAG, "Status: " + e.getMessage());
                 BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
             }
         }
@@ -250,7 +262,6 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             setDecoders();
         }
     }
-
 
 
     private void setTrigger() {
@@ -336,7 +347,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
 
         if (scannerName.equalsIgnoreCase(scannerNameExtScanner)) {
 
-            switch(connectionState) {
+            switch (connectionState) {
                 case CONNECTED:
                     deInitScanner();
                     initScanner();
@@ -347,9 +358,8 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
                     deInitScanner();
                     break;
             }
-        }
-        else {
-            status =  statusString + " " + scannerNameExtScanner + ":" + statusExtScanner;
+        } else {
+            status = statusString + " " + scannerNameExtScanner + ":" + statusExtScanner;
         }
     }
 
@@ -374,8 +384,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         try {
             this.openScanner(emdkManager);
             initScanner();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
         }
     }
@@ -384,7 +393,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
     public void onClosed() {
         if (emdkManager != null) {
             // Remove connection listener
-            if (barcodeManager != null){
+            if (barcodeManager != null) {
                 barcodeManager.removeConnectionListener(this);
                 barcodeManager = null;
             }
@@ -392,32 +401,38 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             emdkManager.release();
             emdkManager = null;
         }
-        Log.e(TAG,"Status: " + "EMDK closed unexpectedly! Please close and restart the application.");
+        Log.e(TAG, "Status: " + "EMDK closed unexpectedly! Please close and restart the application.");
     }
 
     @Override
     public void onData(ScanDataCollection scanDataCollection) {
 
         if ((scanDataCollection != null) && (scanDataCollection.getResult() == ScannerResults.SUCCESS)) {
-            ArrayList <ScanData> scanData = scanDataCollection.getScanData();
+            ArrayList<ScanData> scanData = scanDataCollection.getScanData();
             //get last result
-            ScanData data= scanData.get(scanData.size()-1);
+            ScanData data = scanData.get(scanData.size() - 1);
             ///for(ScanData data : scanData) {
-                String dataString =  data.getData();
-                Log.d(TAG + " - Barcode: ", dataString);
+            String dataString = data.getData();
+            String parseType = "";
+            try {
+                String typeString = data.getLabelType().toString();
+                parseType = mapTypes.get(typeString);
+            } catch (Exception e) {
+            }
+            Log.d(TAG + " - Barcode: ", dataString);
 
-                if (currentCallbackContext != null) {
-                    try {
-                        JSONObject obj = new JSONObject();
-                        obj.put("text", dataString);
-                        BaseScan.sendPluginResultOK(currentCallbackContext, obj);
-                    } catch (Exception x) {
-                        BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
-                    }
+            if (currentCallbackContext != null) {
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("format", parseType);
+                    obj.put("text", dataString);
+                    BaseScan.sendPluginResultOK(currentCallbackContext, obj);
+                } catch (Exception x) {
+                    BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
                 }
+            }
             //}
-        }
-        else {
+        } else {
             if (currentCallbackContext != null) {
                 try {
                     JSONObject obj = new JSONObject();
@@ -436,9 +451,9 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
     public void onStatus(StatusData statusData) {
 
         ScannerStates state = statusData.getState();
-        switch(state) {
+        switch (state) {
             case IDLE:
-                statusString = statusData.getFriendlyName()+" is enabled and idle...";
+                statusString = statusData.getFriendlyName() + " is enabled and idle...";
                 if (bContinuousMode) {
                     try {
                         // An attempt to use the scanner continuously and rapidly (with a delay < 100 ms between scans)
@@ -463,7 +478,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
                 statusString = "Scanning...";
                 break;
             case DISABLED:
-                statusString = statusData.getFriendlyName()+" is disabled.";
+                statusString = statusData.getFriendlyName() + " is disabled.";
                 break;
             case ERROR:
                 statusString = "An error has occurred.";
@@ -485,10 +500,10 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
             if ((deviceList != null) && (deviceList.size() != 0)) {
 
                 Iterator<ScannerInfo> it = deviceList.iterator();
-                while(it.hasNext()) {
+                while (it.hasNext()) {
                     ScannerInfo scnInfo = it.next();
                     friendlyNameList.add(scnInfo.getFriendlyName());
-                    if(scnInfo.isDefaultScanner()) {
+                    if (scnInfo.isDefaultScanner()) {
                         defaultIndex = spinnerIndex;
                     }
                     ++spinnerIndex;

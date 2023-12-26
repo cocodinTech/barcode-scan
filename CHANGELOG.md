@@ -1,7 +1,8 @@
-## [1.1.24] 2023-09-28
+## [1.1.24] 2023-12-26
 
 ### Added
-- Clave 'format' en las lecturas de EA630
+- Clave 'format' en las lecturas de EA630 y ZebraMC33
+- Adaptar clase ZebraMC33 a los lectores Android 11 (TC26)
 
 ## [1.1.23] 2023-06-12
 ### Fixed

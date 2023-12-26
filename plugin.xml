@@ -37,6 +37,11 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <uses-library android:name="com.symbol.emdk" android:required="false"/>
         </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <queries>
+                <package android:name="com.symbol.emdk.emdkservice" />
+            </queries>
+        </config-file>
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BarcodeScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/BaseScan.java" target-dir="src/com/cocodin/barcodescan/plugin" />
       <source-file src="src/android/com/cocodin/barcodescan/plugin/AudioPlayer.java" target-dir="src/com/cocodin/barcodescan/plugin" />
