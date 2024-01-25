@@ -42,46 +42,50 @@ import java.util.Map;
 
 public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, StatusListener, ScannerConnectionListener {
 
-    private static final String TAG = "ZebraMC33";
+  private static final String TAG = "ZebraMC33";
 
-    private EMDKManager emdkManager = null;
-    private BarcodeManager barcodeManager = null;
-    private Scanner scanner = null;
+  private EMDKManager emdkManager = null;
+  private BarcodeManager barcodeManager = null;
+  private Scanner scanner = null;
 
-    private boolean bContinuousMode = true;
+  private boolean bContinuousMode = true;
 
-    private List<ScannerInfo> deviceList = null;
+  private List<ScannerInfo> deviceList = null;
 
-    private int scannerIndex = 1; // Keep the selected scanner
-    private int defaultIndex = 0; // Keep the default scanner
-    private int triggerIndex = 0;
-    private int dataLength = 0;
-    private String statusString = "";
-    private Map<String, String> mapTypes = new HashMap<>();
+  private int scannerIndex = 0; // Keep the selected scanner
+  private int defaultIndex = 0; // Keep the default scanner
+  private int triggerIndex = 0;
+  private int dataLength = 0;
+  private String statusString = "";
+  private Map<String, String> mapTypes = new HashMap<>();
 
-    public ZebraMC33(CordovaInterface cordova, CordovaWebView webView) {
-        super(cordova, webView);
-        initialize(cordova, webView);
+  public ZebraMC33(CordovaInterface cordova, CordovaWebView webView, int scannerIndex) {
+    super(cordova, webView);
+    initialize(cordova, webView);
+    this.scannerIndex = scannerIndex;
+  }
+
+  @Override
+  public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+    init(cordova);
+  }
+
+  @Override
+  public String getDeviceName() {
+    if(scannerIndex == 1){
+      return "TC26";
     }
+    return TAG;
+  }
 
-    @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        init(cordova);
+  public void init(CordovaInterface cordova) {
+    //when initialised, it call automatically onOpened
+    EMDKResults results = EMDKManager.getEMDKManager(cordova.getActivity().getApplicationContext(), this);
+    if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
+      Log.e(TAG, "Status: " + "EMDKManager object request failed!");
+      return;
     }
-
-    @Override
-    public String getDeviceName() {
-        return TAG;
-    }
-
-    public void init(CordovaInterface cordova) {
-        //when initialised, it call automatically onOpened
-        EMDKResults results = EMDKManager.getEMDKManager(cordova.getActivity().getApplicationContext(), this);
-        if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
-            Log.e(TAG, "Status: " + "EMDKManager object request failed!");
-            return;
-        }
-    }
+  }
 
     /* //Only needed in continousMode=false
         public void prepareForScan() {
@@ -98,179 +102,177 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         }
     }*/
 
-    public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
-        this.currentCallbackContext = callbackContext;
-        //this.prepareForScan();
-        JSONObject obj = new JSONObject();
-        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
-        result.setKeepCallback(true);
-        callbackContext.sendPluginResult(result);
+  public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
+    this.currentCallbackContext = callbackContext;
+    //this.prepareForScan();
+    JSONObject obj = new JSONObject();
+    PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+    result.setKeepCallback(true);
+    callbackContext.sendPluginResult(result);
+  }
+
+  private void initScanner() {
+    this.mapTypes.put("EAN13", "EAN_13");
+    this.mapTypes.put("EAN8", "EAN_8");
+    this.mapTypes.put("CODE39", "CODE_39");
+    this.mapTypes.put("CODE128", "CODE_128");
+    this.mapTypes.put("EAN128", "CODE_128");
+    //this.mapTypes.put(73, "EAN_14");
+    this.mapTypes.put("UPCA", "UPC_A");
+    this.mapTypes.put("UPCE0", "UPC_E");
+    this.mapTypes.put("QRCODE", "QR_CODE");
+    this.mapTypes.put("DATAMATRIX", "DATA_MATRIX");
+    this.mapTypes.put("GS1_DATABAR", "RSS_14");
+    if (scanner == null) {
+      if ((deviceList != null) && (deviceList.size() != 0)) {
+        scanner = barcodeManager.getDevice(deviceList.get(scannerIndex));
+      } else {
+        String errMsg = "Status: " + "Failed to get the specified scanner device! Please close and restart the application.";
+        Log.e(TAG, errMsg);
+        BaseScan.sendPluginResultError(currentCallbackContext, errMsg);
+      }
+      if (scanner != null) {
+        scanner.addDataListener(this);
+        scanner.addStatusListener(this);
+        try {
+          scanner.enable();
+        } catch (ScannerException e) {
+          Log.e(TAG, "Status: " + e.getMessage());
+          BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
+        }
+      } else {
+        String errMsg = "Status: " + "Failed to initialize the scanner device.";
+        Log.e(TAG, errMsg);
+        BaseScan.sendPluginResultError(currentCallbackContext, errMsg);
+      }
+    }
+  }
+
+
+  private void deInitScanner() {
+    if (scanner != null) {
+      try {
+        scanner.cancelRead();
+        scanner.disable();
+      } catch (Exception e) {
+        Log.e(TAG, "Status: " + e.getMessage());
+      }
+      try {
+        scanner.removeDataListener(this);
+        scanner.removeStatusListener(this);
+      } catch (Exception e) {
+        Log.e(TAG, "Error removing listeners: Status: " + e.getMessage());
+      }
+      try {
+        scanner.release();
+      } catch (Exception e) {
+        Log.e(TAG, "Error releasing scanner: Status: " + e.getMessage());
+      }
+      scanner = null;
+    }
+  }
+
+  private void stopScan() {
+    if (scanner != null) {
+      try {
+        // Reset continuous flag
+        bContinuousMode = true;
+        // Cancel the pending read.
+        scanner.cancelRead();
+      } catch (ScannerException e) {
+        Log.e(TAG, "Error stopping scan: Status: " + e.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
+    this.currentCallbackContext = callbackContext;
+
+    if (scanner == null) {
+      initScanner();
+    }
+    if (scanner != null) {
+      try {
+        if (scanner.isEnabled()) {
+          if (scanner.isReadPending()) {
+            scanner.cancelRead();
+          }
+          // Submit a new read.
+          setSoftTrigger();
+          scanner.read();
+        } else {
+          String msg = "Status: Scanner is not enabled";
+          Log.e(TAG, msg);
+          BaseScan.sendPluginResultError(currentCallbackContext, msg);
+        }
+      } catch (ScannerException e) {
+        Log.e(TAG, "Status: " + e.getMessage());
+        BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public void onStart() {
+
+  }
+
+  @Override
+  public void onStop() {
+
+  }
+
+  @Override
+  public void onDestroy() {
+    // De-initialize scanner
+    deInitScanner();
+
+    // Remove connection listener
+    if (barcodeManager != null) {
+      barcodeManager.removeConnectionListener(this);
+      barcodeManager = null;
     }
 
-    ;
-
-    private void initScanner() {
-        this.mapTypes.put("EAN13", "EAN_13");
-        this.mapTypes.put("EAN8", "EAN_8");
-        this.mapTypes.put("CODE39", "CODE_39");
-        this.mapTypes.put("CODE128", "CODE_128");
-        this.mapTypes.put("EAN128", "CODE_128");
-        //this.mapTypes.put(73, "EAN_14");
-        this.mapTypes.put("UPCA", "UPC_A");
-        this.mapTypes.put("UPCE0", "UPC_E");
-        this.mapTypes.put("QRCODE", "QR_CODE");
-        this.mapTypes.put("DATAMATRIX", "DATA_MATRIX");
-        this.mapTypes.put("GS1_DATABAR", "RSS_14");
-        if (scanner == null) {
-            if ((deviceList != null) && (deviceList.size() != 0)) {
-                scanner = barcodeManager.getDevice(deviceList.get(scannerIndex));
-            } else {
-                String errMsg = "Status: " + "Failed to get the specified scanner device! Please close and restart the application.";
-                Log.e(TAG, errMsg);
-                BaseScan.sendPluginResultError(currentCallbackContext, errMsg);
-            }
-            if (scanner != null) {
-                scanner.addDataListener(this);
-                scanner.addStatusListener(this);
-                try {
-                    scanner.enable();
-                } catch (ScannerException e) {
-                    Log.e(TAG, "Status: " + e.getMessage());
-                    BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
-                }
-            } else {
-                String errMsg = "Status: " + "Failed to initialize the scanner device.";
-                Log.e(TAG, errMsg);
-                BaseScan.sendPluginResultError(currentCallbackContext, errMsg);
-            }
-        }
-    }
-
-
-    private void deInitScanner() {
-        if (scanner != null) {
-            try {
-                scanner.cancelRead();
-                scanner.disable();
-            } catch (Exception e) {
-                Log.e(TAG, "Status: " + e.getMessage());
-            }
-            try {
-                scanner.removeDataListener(this);
-                scanner.removeStatusListener(this);
-            } catch (Exception e) {
-                Log.e(TAG, "Error removing listeners: Status: " + e.getMessage());
-            }
-            try {
-                scanner.release();
-            } catch (Exception e) {
-                Log.e(TAG, "Error releasing scanner: Status: " + e.getMessage());
-            }
-            scanner = null;
-        }
-    }
-
-    private void stopScan() {
-        if (scanner != null) {
-            try {
-                // Reset continuous flag
-                bContinuousMode = true;
-                // Cancel the pending read.
-                scanner.cancelRead();
-            } catch (ScannerException e) {
-                Log.e(TAG, "Error stopping scan: Status: " + e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void scan(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
-        this.currentCallbackContext = callbackContext;
-
-        if (scanner == null) {
-            initScanner();
-        }
-        if (scanner != null) {
-            try {
-                if (scanner.isEnabled()) {
-                    if (scanner.isReadPending()) {
-                        scanner.cancelRead();
-                    }
-                    // Submit a new read.
-                    setSoftTrigger();
-                    scanner.read();
-                } else {
-                    String msg = "Status: Scanner is not enabled";
-                    Log.e(TAG, msg);
-                    BaseScan.sendPluginResultError(currentCallbackContext, msg);
-                }
-            } catch (ScannerException e) {
-                Log.e(TAG, "Status: " + e.getMessage());
-                BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onStart() {
+    // Release all the resources
+    if (emdkManager != null) {
+      emdkManager.release();
+      emdkManager = null;
 
     }
+  }
 
-    @Override
-    public void onStop() {
+  @Override
+  public void onResume(boolean multitasking) {
+    // The application is in foreground
 
+    // Acquire the barcode manager resources
+    if (emdkManager != null) {
+      barcodeManager = (BarcodeManager) emdkManager.getInstance(FEATURE_TYPE.BARCODE);
+
+      // Add connection listener
+      if (barcodeManager != null) {
+        barcodeManager.addConnectionListener(this);
+      }
+
+      // Enumerate scanner devices
+      enumerateScannerDevices();
+
+      // Initialize scanner
+      initScanner();
+      setTrigger();
+      setDecoders();
     }
+  }
 
-    @Override
-    public void onDestroy() {
-        // De-initialize scanner
-        deInitScanner();
 
-        // Remove connection listener
-        if (barcodeManager != null) {
-            barcodeManager.removeConnectionListener(this);
-            barcodeManager = null;
-        }
-
-        // Release all the resources
-        if (emdkManager != null) {
-            emdkManager.release();
-            emdkManager = null;
-
-        }
+  private void setTrigger() {
+    if (scanner == null) {
+      initScanner();
     }
-
-    @Override
-    public void onResume(boolean multitasking) {
-        // The application is in foreground
-
-        // Acquire the barcode manager resources
-        if (emdkManager != null) {
-            barcodeManager = (BarcodeManager) emdkManager.getInstance(FEATURE_TYPE.BARCODE);
-
-            // Add connection listener
-            if (barcodeManager != null) {
-                barcodeManager.addConnectionListener(this);
-            }
-
-            // Enumerate scanner devices
-            enumerateScannerDevices();
-
-            // Initialize scanner
-            initScanner();
-            setTrigger();
-            setDecoders();
-        }
-    }
-
-
-    private void setTrigger() {
-        if (scanner == null) {
-            initScanner();
-        }
-        if (scanner != null) {
-            //force to trigger hard scanner
-            scanner.triggerType = TriggerType.HARD;
+    if (scanner != null) {
+      //force to trigger hard scanner
+      scanner.triggerType = TriggerType.HARD;
             /*switch (triggerIndex) {
                 case 0: // Selected "HARD"
                     scanner.triggerType = TriggerType.HARD;
@@ -279,238 +281,238 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
                     scanner.triggerType = TriggerType.SOFT_ALWAYS;
                     break;
             }*/
-        }
+    }
+  }
+
+  private void setSoftTrigger() {
+    if (scanner == null) {
+      initScanner();
+    }
+    if (scanner != null) {
+      //force to trigger SOFT_ONCE scanner
+      scanner.triggerType = TriggerType.SOFT_ONCE;
+    }
+  }
+
+
+  //config barcode types allowed
+  private void setDecoders() {
+    if (scanner == null) {
+      initScanner();
+    }
+    if ((scanner != null) && (scanner.isEnabled())) {
+      try {
+        ScannerConfig config = scanner.getConfig();
+        config.decoderParams.ean8.enabled = true;
+        config.decoderParams.ean13.enabled = true;
+        config.decoderParams.qrCode.enabled = true;
+        config.decoderParams.code39.enabled = true;
+        config.decoderParams.code128.enabled = true;
+        scanner.setConfig(config);
+      } catch (ScannerException e) {
+        Log.e(TAG, "Status: " + e.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public void onPause(boolean multitasking) {
+    // The application is in background
+    // De-initialize scanner
+    deInitScanner();
+
+    // Remove connection listener
+    if (barcodeManager != null) {
+      barcodeManager.removeConnectionListener(this);
+      barcodeManager = null;
+      deviceList = null;
     }
 
-    private void setSoftTrigger() {
-        if (scanner == null) {
-            initScanner();
-        }
-        if (scanner != null) {
-            //force to trigger SOFT_ONCE scanner
-            scanner.triggerType = TriggerType.SOFT_ONCE;
-        }
+    // Release the barcode manager resources
+    if (emdkManager != null) {
+      emdkManager.release(FEATURE_TYPE.BARCODE);
+    }
+  }
+
+  @Override
+  public void onConnectionChange(ScannerInfo scannerInfo, ConnectionState connectionState) {
+
+    String status;
+    String scannerName = "";
+
+    String statusExtScanner = connectionState.toString();
+    String scannerNameExtScanner = scannerInfo.getFriendlyName();
+
+    if (deviceList.size() != 0) {
+      scannerName = deviceList.get(scannerIndex).getFriendlyName();
     }
 
+    if (scannerName.equalsIgnoreCase(scannerNameExtScanner)) {
 
-    //config barcode types allowed
-    private void setDecoders() {
-        if (scanner == null) {
-            initScanner();
-        }
-        if ((scanner != null) && (scanner.isEnabled())) {
-            try {
-                ScannerConfig config = scanner.getConfig();
-                config.decoderParams.ean8.enabled = true;
-                config.decoderParams.ean13.enabled = true;
-                config.decoderParams.qrCode.enabled = true;
-                config.decoderParams.code39.enabled = true;
-                config.decoderParams.code128.enabled = true;
-                scanner.setConfig(config);
-            } catch (ScannerException e) {
-                Log.e(TAG, "Status: " + e.getMessage());
-            }
-        }
+      switch (connectionState) {
+        case CONNECTED:
+          deInitScanner();
+          initScanner();
+          setTrigger();
+          setDecoders();
+          break;
+        case DISCONNECTED:
+          deInitScanner();
+          break;
+      }
+    } else {
+      status = statusString + " " + scannerNameExtScanner + ":" + statusExtScanner;
+    }
+  }
+
+  private void openScanner(EMDKManager emdkManager) throws Exception {
+    this.emdkManager = emdkManager;
+
+    // Acquire the barcode manager resources
+    barcodeManager = (BarcodeManager) emdkManager.getInstance(FEATURE_TYPE.BARCODE);
+
+    // Add connection listener
+    if (barcodeManager != null) {
+      barcodeManager.addConnectionListener(this);
     }
 
-    @Override
-    public void onPause(boolean multitasking) {
-        // The application is in background
-        // De-initialize scanner
-        deInitScanner();
+    // Enumerate scanner devices
+    enumerateScannerDevices();
 
-        // Remove connection listener
-        if (barcodeManager != null) {
-            barcodeManager.removeConnectionListener(this);
-            barcodeManager = null;
-            deviceList = null;
-        }
+  }
 
-        // Release the barcode manager resources
-        if (emdkManager != null) {
-            emdkManager.release(FEATURE_TYPE.BARCODE);
-        }
+  @Override
+  public void onOpened(EMDKManager emdkManager) {
+    try {
+      this.openScanner(emdkManager);
+      //  initScanner();  Fix: Se inicia el scanner 2 veces para diferenetes devices (deviceList(index)): instanciando la clase para: 1. ZebraMC33 y 2. TC26
+    } catch (Exception e) {
+      BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
     }
+  }
 
-    @Override
-    public void onConnectionChange(ScannerInfo scannerInfo, ConnectionState connectionState) {
-
-        String status;
-        String scannerName = "";
-
-        String statusExtScanner = connectionState.toString();
-        String scannerNameExtScanner = scannerInfo.getFriendlyName();
-
-        if (deviceList.size() != 0) {
-            scannerName = deviceList.get(scannerIndex).getFriendlyName();
-        }
-
-        if (scannerName.equalsIgnoreCase(scannerNameExtScanner)) {
-
-            switch (connectionState) {
-                case CONNECTED:
-                    deInitScanner();
-                    initScanner();
-                    setTrigger();
-                    setDecoders();
-                    break;
-                case DISCONNECTED:
-                    deInitScanner();
-                    break;
-            }
-        } else {
-            status = statusString + " " + scannerNameExtScanner + ":" + statusExtScanner;
-        }
+  @Override
+  public void onClosed() {
+    if (emdkManager != null) {
+      // Remove connection listener
+      if (barcodeManager != null) {
+        barcodeManager.removeConnectionListener(this);
+        barcodeManager = null;
+      }
+      // Release all the resources
+      emdkManager.release();
+      emdkManager = null;
     }
+    Log.e(TAG, "Status: " + "EMDK closed unexpectedly! Please close and restart the application.");
+  }
 
-    private void openScanner(EMDKManager emdkManager) throws Exception {
-        this.emdkManager = emdkManager;
+  @Override
+  public void onData(ScanDataCollection scanDataCollection) {
 
-        // Acquire the barcode manager resources
-        barcodeManager = (BarcodeManager) emdkManager.getInstance(FEATURE_TYPE.BARCODE);
+    if ((scanDataCollection != null) && (scanDataCollection.getResult() == ScannerResults.SUCCESS)) {
+      ArrayList<ScanData> scanData = scanDataCollection.getScanData();
+      //get last result
+      ScanData data = scanData.get(scanData.size() - 1);
+      ///for(ScanData data : scanData) {
+      String dataString = data.getData();
+      String parseType = "";
+      try {
+        String typeString = data.getLabelType().toString();
+        parseType = mapTypes.get(typeString);
+      } catch (Exception e) {
+      }
+      Log.d(TAG + " - Barcode: ", dataString);
 
-        // Add connection listener
-        if (barcodeManager != null) {
-            barcodeManager.addConnectionListener(this);
-        }
-
-        // Enumerate scanner devices
-        enumerateScannerDevices();
-
-    }
-
-    @Override
-    public void onOpened(EMDKManager emdkManager) {
+      if (currentCallbackContext != null) {
         try {
-            this.openScanner(emdkManager);
-            initScanner();
-        } catch (Exception e) {
-            BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
+          JSONObject obj = new JSONObject();
+          obj.put("format", parseType);
+          obj.put("text", dataString);
+          BaseScan.sendPluginResultOK(currentCallbackContext, obj);
+        } catch (Exception x) {
+          BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
         }
-    }
-
-    @Override
-    public void onClosed() {
-        if (emdkManager != null) {
-            // Remove connection listener
-            if (barcodeManager != null) {
-                barcodeManager.removeConnectionListener(this);
-                barcodeManager = null;
-            }
-            // Release all the resources
-            emdkManager.release();
-            emdkManager = null;
+      }
+      //}
+    } else {
+      if (currentCallbackContext != null) {
+        try {
+          JSONObject obj = new JSONObject();
+          obj.put("text", "");
+          PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+          result.setKeepCallback(true);
+          currentCallbackContext.sendPluginResult(result);
+        } catch (Exception x) {
+          BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
         }
-        Log.e(TAG, "Status: " + "EMDK closed unexpectedly! Please close and restart the application.");
+      }
     }
+  }
 
-    @Override
-    public void onData(ScanDataCollection scanDataCollection) {
+  @Override
+  public void onStatus(StatusData statusData) {
 
-        if ((scanDataCollection != null) && (scanDataCollection.getResult() == ScannerResults.SUCCESS)) {
-            ArrayList<ScanData> scanData = scanDataCollection.getScanData();
-            //get last result
-            ScanData data = scanData.get(scanData.size() - 1);
-            ///for(ScanData data : scanData) {
-            String dataString = data.getData();
-            String parseType = "";
+    ScannerStates state = statusData.getState();
+    switch (state) {
+      case IDLE:
+        statusString = statusData.getFriendlyName() + " is enabled and idle...";
+        if (bContinuousMode) {
+          try {
+            // An attempt to use the scanner continuously and rapidly (with a delay < 100 ms between scans)
+            // may cause the scanner to pause momentarily before resuming the scanning.
+            // Hence add some delay (>= 100ms) before submitting the next read.
             try {
-                String typeString = data.getLabelType().toString();
-                parseType = mapTypes.get(typeString);
-            } catch (Exception e) {
+              Thread.sleep(100);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
             }
-            Log.d(TAG + " - Barcode: ", dataString);
 
-            if (currentCallbackContext != null) {
-                try {
-                    JSONObject obj = new JSONObject();
-                    obj.put("format", parseType);
-                    obj.put("text", dataString);
-                    BaseScan.sendPluginResultOK(currentCallbackContext, obj);
-                } catch (Exception x) {
-                    BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
-                }
-            }
-            //}
-        } else {
-            if (currentCallbackContext != null) {
-                try {
-                    JSONObject obj = new JSONObject();
-                    obj.put("text", "");
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
-                    result.setKeepCallback(true);
-                    currentCallbackContext.sendPluginResult(result);
-                } catch (Exception x) {
-                    BaseScan.sendPluginResultError(currentCallbackContext, x.getMessage());
-                }
-            }
+            scanner.read();
+          } catch (ScannerException e) {
+            statusString = e.getMessage();
+          }
         }
+        break;
+      case WAITING:
+        statusString = "Scanner is waiting for trigger press...";
+        break;
+      case SCANNING:
+        statusString = "Scanning...";
+        break;
+      case DISABLED:
+        statusString = statusData.getFriendlyName() + " is disabled.";
+        break;
+      case ERROR:
+        statusString = "An error has occurred.";
+        break;
+      default:
+        break;
     }
+  }
 
-    @Override
-    public void onStatus(StatusData statusData) {
 
-        ScannerStates state = statusData.getState();
-        switch (state) {
-            case IDLE:
-                statusString = statusData.getFriendlyName() + " is enabled and idle...";
-                if (bContinuousMode) {
-                    try {
-                        // An attempt to use the scanner continuously and rapidly (with a delay < 100 ms between scans)
-                        // may cause the scanner to pause momentarily before resuming the scanning.
-                        // Hence add some delay (>= 100ms) before submitting the next read.
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+  private void enumerateScannerDevices() {
 
-                        scanner.read();
-                    } catch (ScannerException e) {
-                        statusString = e.getMessage();
-                    }
-                }
-                break;
-            case WAITING:
-                statusString = "Scanner is waiting for trigger press...";
-                break;
-            case SCANNING:
-                statusString = "Scanning...";
-                break;
-            case DISABLED:
-                statusString = statusData.getFriendlyName() + " is disabled.";
-                break;
-            case ERROR:
-                statusString = "An error has occurred.";
-                break;
-            default:
-                break;
+    if (barcodeManager != null) {
+      List<String> friendlyNameList = new ArrayList<String>();
+      int spinnerIndex = 0;
+
+      deviceList = barcodeManager.getSupportedDevicesInfo();
+
+      if ((deviceList != null) && (deviceList.size() != 0)) {
+
+        Iterator<ScannerInfo> it = deviceList.iterator();
+        while (it.hasNext()) {
+          ScannerInfo scnInfo = it.next();
+          friendlyNameList.add(scnInfo.getFriendlyName());
+          if (scnInfo.isDefaultScanner()) {
+            defaultIndex = spinnerIndex;
+          }
+          ++spinnerIndex;
         }
+      }
     }
-
-
-    private void enumerateScannerDevices() {
-
-        if (barcodeManager != null) {
-            List<String> friendlyNameList = new ArrayList<String>();
-            int spinnerIndex = 0;
-
-            deviceList = barcodeManager.getSupportedDevicesInfo();
-
-            if ((deviceList != null) && (deviceList.size() != 0)) {
-
-                Iterator<ScannerInfo> it = deviceList.iterator();
-                while (it.hasNext()) {
-                    ScannerInfo scnInfo = it.next();
-                    friendlyNameList.add(scnInfo.getFriendlyName());
-                    if (scnInfo.isDefaultScanner()) {
-                        defaultIndex = spinnerIndex;
-                    }
-                    ++spinnerIndex;
-                }
-            }
-        }
-    }
+  }
 
     /*private class ProcessProfileAsyncTask extends AsyncTask<String, Void, EMDKResults> {
 
