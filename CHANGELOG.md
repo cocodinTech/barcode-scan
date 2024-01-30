@@ -1,3 +1,15 @@
+## [1.1.26] 2023-01-30
+
+### Fixed
+- Habilitar el trigger analógico de los lectores Zebra en el método enable()
+
+## [1.1.25] 2024-01-25
+
+### Fixed
+- Comentar la función initScanner() en el evento onOpened de los terminales Zebra para 
+  evitar que se inicie el scanner dos veces para diferenetes devices.
+- Añadir parámetro scannerIndex en el constructor de la clase ZebraMC33
+
 ## [1.1.24] 2023-12-26
 
 ### Added

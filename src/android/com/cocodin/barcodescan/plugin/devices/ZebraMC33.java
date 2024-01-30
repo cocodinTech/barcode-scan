@@ -105,6 +105,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
   public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
     this.currentCallbackContext = callbackContext;
     //this.prepareForScan();
+    this.setSoftTrigger();
     JSONObject obj = new JSONObject();
     PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
     result.setKeepCallback(true);
@@ -385,7 +386,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
   public void onOpened(EMDKManager emdkManager) {
     try {
       this.openScanner(emdkManager);
-      //  initScanner();  Fix: Se inicia el scanner 2 veces para diferenetes devices (deviceList(index)): instanciando la clase para: 1. ZebraMC33 y 2. TC26
+      //  initScanner();  Fix: Se inicia el scanner 2 veces para diferenetes devices (deviceList(index)): instanciando la clase para: 1.ZebraMC33 y 2.TC26
     } catch (Exception e) {
       BaseScan.sendPluginResultError(currentCallbackContext, e.getMessage());
     }
