@@ -30,8 +30,7 @@ public class BarcodeScan extends CordovaPlugin {
 
   public static final String EA630 = "EA630";
   public static final String IT51 = "IT_51";
-  public static final String ZEBRATC26 = "TC26";
-  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33, UNITECHEA300, EA630, IT51, ZEBRATC26));
+  public static JSONArray jaDevices = new JSONArray(Arrays.asList(CAMERA, C4050, NQUIRE300, EDA50K, ZEBRAMC33, UNITECHEA300, EA630, IT51));
   private BaseScan mDevice;
   private Map<String, BaseScan> mDevices = new HashMap<String, BaseScan>();
 
@@ -58,15 +57,13 @@ public class BarcodeScan extends CordovaPlugin {
         } else if (NQUIRE300.equalsIgnoreCase(deviceName)) {
           mDevices.put(NQUIRE300, new com.cocodin.barcodescan.plugin.devices.NQuire300(cordova, webView));
         } else if (ZEBRAMC33.equalsIgnoreCase(deviceName)) {
-          mDevices.put(ZEBRAMC33, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView, 0));
-        }  else if (UNITECHEA300.equalsIgnoreCase(deviceName)) {
+          mDevices.put(ZEBRAMC33, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView));
+        } else if (UNITECHEA300.equalsIgnoreCase(deviceName)) {
           mDevices.put(UNITECHEA300, new com.cocodin.barcodescan.plugin.devices.UnitechEA300(cordova, webView));
         } else if (EA630.equalsIgnoreCase(deviceName)) {
           mDevices.put(EA630, new com.cocodin.barcodescan.plugin.devices.EA630(cordova, webView));
         } else if (IT51.equalsIgnoreCase(deviceName)) {
           mDevices.put(IT51, new com.cocodin.barcodescan.plugin.devices.IT51(cordova, webView));
-        }else if (ZEBRATC26.equalsIgnoreCase(deviceName)) {
-          mDevices.put(ZEBRATC26, new com.cocodin.barcodescan.plugin.devices.ZebraMC33(cordova, webView, 1));
         } else {
           mDevices.put(CAMERA, new com.cocodin.barcodescan.plugin.devices.Camera(cordova, webView));
         }
@@ -102,22 +99,17 @@ public class BarcodeScan extends CordovaPlugin {
         }
       });
     } else if (action.equalsIgnoreCase("enable")) {
-      cordova.getThreadPool().execute(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            String deviceName = args.get(0).toString();
-            //ensure device is created and is the correct device (user could change the device in mobile UI)
-            if (mDevice == null || !mDevice.getDeviceName().equalsIgnoreCase(deviceName)) {
-              mDevice = selectDevice(deviceName);
-            }
-            mDevice.enable(cordova, webView, args, callbackContext);
-          } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
-          }
+      try {
+        String deviceName = args.get(0).toString();
+        //ensure device is created and is the correct device (user could change the device in mobile UI)
+        if (mDevice == null || !mDevice.getDeviceName().equalsIgnoreCase(deviceName)) {
+          mDevice = selectDevice(deviceName);
         }
-      });
+        mDevice.enable(cordova, webView, args, callbackContext);
+      } catch (Exception e) {
+        Log.e(TAG, e.getMessage());
+        callbackContext.sendPluginResult(new PluginResult(Status.ERROR, e.getMessage()));
+      }
     } else if (action.equalsIgnoreCase("getDevices")) {
       callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, jaDevices));
     } else if (action.equalsIgnoreCase("launchAndroidSettings")) {

@@ -1,4 +1,13 @@
-## [1.1.26] 2023-01-30
+## [1.2.0] 2024-01-30
+
+### Changed
+- Nueva clase ZebraMC33
+- Invocar el metodo "enable" en el hilo principal
+
+### Changed
+- Actualizar libreria Zebra emdk.jar
+  
+## [1.1.26] 2024-01-30
 
 ### Fixed
 - Habilitar el trigger analógico de los lectores Zebra en el método enable()
