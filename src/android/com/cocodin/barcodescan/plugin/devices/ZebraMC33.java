@@ -31,8 +31,10 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Created by alberto.doval  on 21/05/18.
- * Updated by diego.santiago on 24/03/19.
+ * Created by alberto.doval on 21/05/18.
  */
 
 public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, StatusListener, ScannerConnectionListener {
@@ -54,6 +55,8 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
   private String statusString = "";
   private boolean bSoftTriggerSelected = false;
   private final Map<String, String> mapTypes = new HashMap<>();
+  private boolean isSetDecodders = false;
+  private boolean initDimZebraDecos = false;
 
 
   public ZebraMC33(CordovaInterface cordova, CordovaWebView webView) {
@@ -66,7 +69,6 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
     EMDKResults results = EMDKManager.getEMDKManager(cordova.getContext(), this);
     if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
       Log.e(TAG, "Status: " + "EMDKManager object request failed!");
-      return;
     }
   }
 
@@ -77,6 +79,11 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
 
   public void enable(CordovaInterface cordova, CordovaWebView webView, JSONArray args, final CallbackContext callbackContext) {
     try {
+      try {
+        this.initDimZebraDecos = (boolean) args.get(1);
+      } catch (Exception e) {
+        Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+      }
       this.currentCallbackContext = callbackContext;
       initBarcodeManager();
       JSONObject obj = new JSONObject();
@@ -213,6 +220,13 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         }
         // submit read
         if (!scanner.isReadPending()) {
+          if (!isSetDecodders) {
+            if (initDimZebraDecos) {
+              setDynamicDecoders();
+            } else {
+              setDecoders();
+            }
+          }
           try {
             scanner.read();
           } catch (ScannerException e) {
@@ -265,7 +279,6 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
       scanner.addStatusListener(this);
       try {
         scanner.enable();
-        setDecoders();
       } catch (ScannerException e) {
         deInitScanner();
         Log.e(TAG, Objects.requireNonNull(e.getMessage()));
@@ -316,11 +329,12 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
     this.mapTypes.put("EAN128", "CODE_128");
     this.mapTypes.put("UPCA", "UPC_A");
     this.mapTypes.put("UPCE0", "UPC_E");
+    this.mapTypes.put("UPCE1", "UPC_E_COMPUESTO");
     this.mapTypes.put("QRCODE", "QR_CODE");
     this.mapTypes.put("DATAMATRIX", "DATA_MATRIX");
     this.mapTypes.put("GS1_DATABAR", "RSS_14");
+    this.mapTypes.put("I2OF5", "I2OF5");
   }
-
 
   private void setDecoders() {
     if ((scanner != null) && (scanner.isEnabled())) {
@@ -335,10 +349,67 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
         config.decoderParams.gs1Databar.enabled = true;
         config.decoderParams.upce0.enabled = true;
         config.decoderParams.upca.enabled = true;
+        config.decoderParams.i2of5.enabled = true;
+        /* config.decoderParams.chinese2of5.enabled = true;
+        config.decoderParams.matrix2of5.enabled = true;
+        config.decoderParams.australianPostal.enabled = true;
+        config.decoderParams.aztec.enabled = true;
+        config.decoderParams.canadianPostal.enabled = true;
+        config.decoderParams.codaBar.enabled = true; */
         scanner.setConfig(config);
+        isSetDecodders = true;
+        Log.e(TAG, "decoderParams: " + config.decoderParams);
       } catch (ScannerException e) {
         Log.e(TAG, "Status: " + e.getMessage());
       }
+    }
+  }
+
+  private void setDynamicDecoders() {
+    if (scanner == null || !scanner.isEnabled()) {
+      return;
+    }
+    try {
+      ScannerConfig config = scanner.getConfig();
+      Object decoderParams = config.decoderParams;
+      // Verificar la clase de decoderParams y sus campos
+      Log.i(TAG, "Clase de decoderParams: " + decoderParams.getClass().getName());
+      Field[] decoderFields = decoderParams.getClass().getDeclaredFields();
+      for (Field decoderField : decoderFields) {
+        decoderField.setAccessible(true);
+        Object decoderConfig = decoderField.get(decoderParams);
+        if (decoderConfig == null) {
+          Log.i(TAG, "Campo " + decoderField.getName() + " es null");
+          continue;
+        }
+        // Verificar la clase del decoderConfig y sus campos
+        Log.i(TAG, "Clase de " + decoderField.getName() + ": " + decoderConfig.getClass().getName());
+        Field[] configFields = decoderConfig.getClass().getDeclaredFields();
+        for (Field configField : configFields) {
+          Log.i(TAG, "Campo en " + decoderField.getName() + ": " + configField.getName());
+        }
+        // Buscar el campo "enabled" en la jerarquía de clases
+        Class<?> clazz = decoderConfig.getClass();
+        boolean enabledFound = false;
+        while (clazz != null && !enabledFound) {
+          try {
+            Field enabledField = clazz.getDeclaredField("enabled");
+            enabledField.setAccessible(true);
+            enabledField.setBoolean(decoderConfig, true);
+            Log.i(TAG, "Decoder habilitado: " + decoderField.getName());
+            enabledFound = true;
+          } catch (NoSuchFieldException e) {
+            clazz = clazz.getSuperclass(); // Buscar en la superclase
+          }
+        }
+        if (!enabledFound) {
+          Log.i(TAG, "Decoder " + decoderField.getName() + " no tiene campo 'enabled'");
+        }
+      }
+      scanner.setConfig(config);
+      isSetDecodders = true;
+    } catch (ScannerException | IllegalAccessException e) {
+      Log.e(TAG, "Error: " + e.getMessage());
     }
   }
 
