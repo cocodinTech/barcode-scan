@@ -84,6 +84,7 @@ public class ZebraMC33 extends BaseScan implements EMDKListener, DataListener, S
       } catch (Exception e) {
         Log.e(TAG, Objects.requireNonNull(e.getMessage()));
       }
+      isSetDecodders = false;
       this.currentCallbackContext = callbackContext;
       initBarcodeManager();
       JSONObject obj = new JSONObject();

@@ -1,3 +1,14 @@
+## [1.2.2] 2025-02-06
+
+### Fixed
+- Zebra: Habilitar decodificadores cada invocación de enable()
+
+## [1.2.1] 2025-02-04
+
+### Changed
+- Zebra: Activar decodificador i2of5
+- Zebra: Si 4º parámetro método enable() === true: habilitar todos los decodificadores de forma dinámica 
+
 ## [1.2.0] 2024-01-30
 
 ### Changed
