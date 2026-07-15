@@ -17,6 +17,7 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by Diego Santiago on 7/2/22
@@ -110,7 +111,7 @@ public class IT51 extends BaseScan {
     private void initIT51(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_RECEIVE_DATA);
-        context.registerReceiver(barcodeScannerBroadcastReceiver, filter);
+        ContextCompat.registerReceiver(context, barcodeScannerBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
         IT51On = true;
     }
 }
