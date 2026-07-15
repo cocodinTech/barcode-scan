@@ -149,7 +149,7 @@ public class EA630 extends BaseScan {
      filter.addAction(ACTION_RECEIVE_DATABYTES);
      filter.addAction(ACTION_RECEIVE_DATALENGTH);
      */
-    context.registerReceiver(barcodeScannerBroadcastReceiver, filter); //todo Context.RECEIVER_NOT_EXPORTED
+    ContextCompat.registerReceiver(context, barcodeScannerBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     // deshabilitar scan2key, para recibir datos en onReceive()
     Bundle bundle = new Bundle();
     bundle.putBoolean("scan2key", false);

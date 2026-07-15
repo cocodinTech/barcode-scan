@@ -110,7 +110,7 @@ public class IT51 extends BaseScan {
     private void initIT51(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_RECEIVE_DATA);
-        context.registerReceiver(barcodeScannerBroadcastReceiver, filter);
+        ContextCompat.registerReceiver(context, barcodeScannerBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
         IT51On = true;
     }
 }

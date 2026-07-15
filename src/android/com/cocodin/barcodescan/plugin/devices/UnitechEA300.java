@@ -150,7 +150,7 @@ public class UnitechEA300 extends BaseScan {
             filter.addAction(SCAN_ACTION);
         }
 
-        this.webView.getContext().registerReceiver(mScanReceiver, filter);
+        ContextCompat.registerReceiver(this.webView.getContext(), mScanReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
 

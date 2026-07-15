@@ -109,6 +109,6 @@ public class NQuire300 extends BaseScan {
                 }
             }
         };
-        context.registerReceiver(barcodeScannerBroadcastReceiver, new IntentFilter("nlscan.action.SCANNER_RESULT"));
-    }
+      ContextCompat.registerReceiver(context, barcodeScannerBroadcastReceiver, new IntentFilter("nlscan.action.SCANNER_RESULT"), ContextCompat.RECEIVER_NOT_EXPORTED);
+   }
 }
